@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Archivos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <h1>Archivos Disponibles</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tamaño</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for filename, size in file_info %}
+                <tr>
+                    <td>{{ filename }}</td>
+                    <td>{{ size }}</td>
+                    <td>
+                        <a href="/download/{{ filename }}" download>
+                            <button>Descargar</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Subir Archivo</h2>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".txt, .pdf, .jpg, .png, .zip" required>
+        <button type="submit">Subir</button>
+    </form>
+</body>
+</html>
