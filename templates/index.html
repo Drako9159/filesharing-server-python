@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Archivos</title>
+    <title>File Sharing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
 </head>
 <body>
-    <h1>Archivos Disponibles</h1>
+    <h1>Available Files</h1>
     <table>
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Tamaño</th>
-                <th>Acciones</th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,7 +24,7 @@
                     <td>{{ size }}</td>
                     <td>
                         <a href="/download/{{ filename }}" download>
-                            <button>Descargar</button>
+                            <button>Download</button>
                         </a>
                     </td>
                 </tr>
@@ -32,13 +32,13 @@
         </tbody>
     </table>
 
-    <h2>Subir Archivo</h2>
+    <h2>File Upload</h2>
     {% if message %}
         <p>{{ message }}</p>
     {% endif %}
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".txt, .pdf, .jpg, .png, .zip" required>
-        <button type="submit">Subir</button>
+        <input type="file" name="file" accept=".txt, .pdf, .jpg, .png, .zip .mp4 .apk .mp3" required>
+        <button type="submit">Upload</button>
     </form>
 </body>
 </html>

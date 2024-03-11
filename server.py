@@ -16,16 +16,17 @@ def get_file_info():
             file_info.append((filename, size_str))
     return file_info
 
+
 def get_base_dir():
-    base_path = os.path.abspath(sys.argv[0] if getattr(sys, 'frozen', False) else __file__)
+    base_path = os.path.abspath(sys.argv[0] if getattr(
+        sys, 'frozen', False) else __file__)
     return os.path.dirname(base_path)
+
 
 @app.route("/")
 def index():
     file_info = get_file_info()
     return render_template("index.html", file_info=file_info)
-
-
 
 
 # @app.route("/download/<filename>")
@@ -34,12 +35,12 @@ def index():
 
 @app.route('/download/<filename>')
 def download_file(filename):
-     base_dir = get_base_dir()
-     file_path = os.path.join(base_dir, filename)
-     if os.path.isfile(file_path):
-         return send_from_directory(base_dir, filename)
-     else:
-         return f'File {filename} not found.', 404
+    base_dir = get_base_dir()
+    file_path = os.path.join(base_dir, filename)
+    if os.path.isfile(file_path):
+        return send_from_directory(base_dir, filename)
+    else:
+        return f'File {filename} not found.', 404
 
 
 @app.route("/upload", methods=["POST"])
