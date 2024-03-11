@@ -1,3 +1,4 @@
-
+pip install Flask
+// if you want packe server
 pypinstall pyinstaller
 pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" server.py
