@@ -1,4 +1,6 @@
 pip install Flask
+pip install flask_compress
+pip install waitress
 // if you want packe server
 pypinstall pyinstaller
 pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" server.py

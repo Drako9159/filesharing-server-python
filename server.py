@@ -1,10 +1,16 @@
 from flask import Flask, send_from_directory, render_template, request, redirect, url_for
+from flask_compress import Compress
 import os
 import sys
+import socket
+import logging
+from waitress import serve
 
 app = Flask(__name__)
 app.static_folder = "static"
 
+# Habilira compresión para reducir el tamaño de las respuestas
+Compress(app)
 
 def get_file_info():
 
@@ -14,7 +20,8 @@ def get_file_info():
     Returns:
         list: A list of tuples containing the filename and size in KB.
     """
-
+    # Old code
+    """
     file_info = []
     for filename in os.listdir("."):
         filepath = os.path.join(".", filename)
@@ -22,6 +29,14 @@ def get_file_info():
             size = os.path.getsize(filepath)
             size_str = f"{size / 1024:.2f} KB"
             file_info.append((filename, size_str))
+    return file_info
+    """
+    # New code
+    file_info = [
+        (f, f"{os.path.getsize(f) / 1024:.2f} KB")
+        for f in os.listdir(".")
+        if os.path.isfile(f) and "server" not in f.lower()
+    ]
     return file_info
 
 
@@ -74,13 +89,22 @@ def download_file(filename):
         tuple: A message indicating that the file was not found, along with a 404 status code.
     """
 
+    # Old code
+    """
     base_dir = get_base_dir()
     file_path = os.path.join(base_dir, filename)
     if os.path.isfile(file_path):
         return send_from_directory(base_dir, filename)
     else:
         return f'File {filename} not found.', 404
-
+    """
+    # New code
+    base_dir = get_base_dir()
+    file_path = os.path.join(base_dir, filename)
+    
+    if os.path.isfile(file_path):
+        return send_from_directory(base_dir, filename, as_attachment=False)  # Permite ver archivos en navegador si es posible
+    return f'File {filename} not found.', 404
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -113,6 +137,28 @@ def upload_file():
         return render_template("index.html", file_info=get_file_info(), message=message)
     return redirect(url_for("index"))
 
+# Get local IP address
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Conectar a un servidor externo para determinar la IP local
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"  # Si falla, usa localhost como fallback
 
 if __name__ == "__main__":
+    # Old code
+    """
     app.run(host="0.0.0.0", port=8080)
+    """
+    # New code
+    host = get_local_ip()
+    port = 8080
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("waitress")
+
+    logger.info(f"Running on http://{host}:{8080} (Press CTRL+C to quit)")
+    serve(app, host=host, port=port)
