@@ -6,11 +6,6 @@ import socket
 import logging
 from waitress import serve
 
-app = Flask(__name__)
-app.static_folder = "static"
-
-# Habilira compresión para reducir el tamaño de las respuestas
-Compress(app)
 
 def get_file_info():
 
@@ -39,7 +34,6 @@ def get_file_info():
     ]
     return file_info
 
-
 def get_base_dir():
     
     """
@@ -53,6 +47,32 @@ def get_base_dir():
         sys, 'frozen', False) else __file__)
     return os.path.dirname(base_path)
 
+# Get local IP address
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Conectar a un servidor externo para determinar la IP local
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"  # Si falla, usa localhost como fallback
+
+# Ajuste para PyInstaller: Manejar rutas correctamente
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS  # Carpeta temporal donde PyInstaller descomprime archivos
+    return os.path.abspath(os.path.dirname(__file__))
+
+BASE_DIR = get_base_path()
+
+
+# app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"), static_folder=os.path.join(BASE_DIR, "static"))
+# app.static_folder = "static"
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"), static_folder=os.path.join(BASE_DIR, "static"))
+
+# Habilira compresión para reducir el tamaño de las respuestas
+Compress(app)
 
 @app.route("/")
 def index():
@@ -137,16 +157,7 @@ def upload_file():
         return render_template("index.html", file_info=get_file_info(), message=message)
     return redirect(url_for("index"))
 
-# Get local IP address
-def get_local_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # Conectar a un servidor externo para determinar la IP local
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except Exception:
-        return "127.0.0.1"  # Si falla, usa localhost como fallback
+
 
 if __name__ == "__main__":
     # Old code
